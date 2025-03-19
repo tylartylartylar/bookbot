@@ -1,47 +1,42 @@
+import sys
+from stats import wordCounter, count_chars, sort_chars
+
+def get_book_text(path):
+    with open(path) as f:
+        return f.read()
+
 def main():
-    with open ("./books/frankenstein.txt") as f:
-        file_contents = f.read()
-
-    characterCount = charCount(file_contents)
-    wordCount = wordCounter(file_contents)
-
-    print_report(wordCount, characterCount)
-
-# This doesn't work. This should print a nicely formatted overview of word count, character counts sorted by number of occurances.
-def print_report(words, characters):
-    print('--- Begin report of books/frankenstein.txt ---')
-    print(f"{words}\n")
-    for char_tuple in characters:
-        letter = char_tuple[0]
-        count = char_tuple[1]
-        print(f"The '{letter}' character was found {count} times")
+    # Check if a book path was provided
+    if len(sys.argv) != 2:
+        print("Usage: python3 main.py <path_to_book>")
+        sys.exit(1)
     
-    print('--- End report ---')
-
-
-# 
-def wordCounter(bookText):
-    wordCountStr = bookText.split() # Creates a list of strings (words) found in the bookText
-    totalWords = len(wordCountStr)  # The length of the list
-    return f"{totalWords} words found in the document" # Returns the length of the list.
-
-
-# ===== Get Character Count =====
-def charCount(bookText):
-    character_dic = {} # define the dictionary for character and it's count.
-    lowercaseContents = bookText.lower() # formats all chars into lowercase. 
-
-    for char in lowercaseContents:
-        if char in character_dic:
-            character_dic[char] += 1
-        else: 
-            character_dic[char] = 1
+    # Get the book path from command line arguments
+    path = sys.argv[1]
     
-    filtered_dic = {k: v for k, v in character_dic.items() if k.isalpha()}
-    sorted_dic = sorted(filtered_dic.items(), key=lambda x: x[1], reverse=True)
+    # Get the book text
+    file_contents = get_book_text(path)
+    
+    # Calculate word count and character counts
+    word_count = wordCounter(file_contents).split()[0]  # Extract just the number
+    char_counts = count_chars(file_contents)
+    sorted_chars = sort_chars(char_counts)
+    
+    # Print the report
+    print("============ BOOKBOT ============")
+    print(f"Analyzing book found at {path}...")
+    print("----------- Word Count ----------")
+    print(f"Found {word_count} total words")
+    print("--------- Character Count -------")
+    
+    # Print only alphabetical characters
+    for item in sorted_chars:
+        char = item["char"]
+        count = item["count"]
+        if char.isalpha():
+            print(f"{char}: {count}")
+    
+    print("============= END ===============")
 
-    return sorted_dic
-# ===== Get Character Count =====
-
-
-main()
+if __name__ == "__main__":
+    main()
